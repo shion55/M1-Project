@@ -1,0 +1,1 @@
+C:\Users\shion\Desktop\M1-Project\M1projectUnity\Library\Bee\Android\Prj\IL2CPP\Gradle\unityLibrary\build\intermediates\cxx\RelWithDebInfo\5z2p726n\obj\arm64-v8a

@@ -6,7 +6,6 @@ public class RecordingController : MonoBehaviour
     [Header("References")]
     [SerializeField] private OSCManager oscManager;
     [SerializeField] private AppFlowController appFlowController;
-    [SerializeField] private ExperienceController experienceController;
     [Header("Panels")]
     [SerializeField] private GameObject recordingPanel;
     [SerializeField] private GameObject experiencePanel;
@@ -141,8 +140,7 @@ public class RecordingController : MonoBehaviour
         if (IsRecording || !IsRecordFinished)
             return;
 
-
-        experienceController.BeginExperience();
+        appFlowController.ShowDescription2();
     }
 
     private bool TrySendRecordCommand(int value)

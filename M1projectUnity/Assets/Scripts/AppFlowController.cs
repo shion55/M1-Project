@@ -1,18 +1,35 @@
 ﻿using UnityEngine;
-
+using UnityEngine.UI;
+using DG.Tweening;
 public class AppFlowController : MonoBehaviour
 {
     [Header("Panels")]
     [SerializeField] private GameObject mainMenuPanel;
+    [SerializeField] private GameObject consentPanel;
     [SerializeField] private GameObject descriptionPanel1;
-    [SerializeField] private GameObject descriptionPanel2;
     [SerializeField] private GameObject recordingPanel;
+    [SerializeField] private GameObject descriptionPanel2;
     [SerializeField] private GameObject experiencePanel;
+
+
+    [Header("UIAnimation")]
+    private Tween voiceTween;
+    private Tween recprogressTween;
+
+    public Image Desc1Voice;
+    public Image Desc1Prog;
+
+    public int Desc1AnimDuration = 3;
+
+    private bool IsDesc1AnimPlay = false; 
+
     [Header("OSC")]
     [SerializeField] private OSCManager oscManager;
 
     [Header("Recording Controller")]
     [SerializeField] private RecordingController recordingController;
+
+    [SerializeField] private ExperienceController experienceController;
 
     public enum ConsentMode
     {
@@ -27,17 +44,18 @@ public class AppFlowController : MonoBehaviour
     private enum Page
     {
         MainMenu,
+        Consent,
         Description1,
-        Description2,
         Recording,
+        Description2,
         Experience
     }
 
     private void Awake()
     {
         if (mainMenuPanel == null ||
+            consentPanel == null ||
             descriptionPanel1 == null ||
-            descriptionPanel2 == null ||
             recordingPanel == null)
         {
             Debug.LogError(
@@ -53,9 +71,10 @@ public class AppFlowController : MonoBehaviour
     private void ShowPage(Page page)
     {
         mainMenuPanel.SetActive(page == Page.MainMenu);
+        consentPanel.SetActive(page == Page.Consent);
         descriptionPanel1.SetActive(page == Page.Description1);
-        descriptionPanel2.SetActive(page == Page.Description2);
         recordingPanel.SetActive(page == Page.Recording);
+        descriptionPanel2.SetActive(page == Page.Description2);
         experiencePanel.SetActive(page == Page.Experience);
     }
 
@@ -78,12 +97,13 @@ public class AppFlowController : MonoBehaviour
         CurrentConsent = ConsentMode.None;
         SendConsent(CurrentConsent);
 
-        ShowPage(Page.Description1);
+        ShowPage(Page.Consent);
     }
 
-    public void NextDescription()
+    public void StartRecording()
     {
-        ShowPage(Page.Description2);
+        IsDesc1AnimPlay = false;
+        ShowPage(Page.Recording);
     }
 
     public void CancelExperience()
@@ -107,8 +127,34 @@ public class AppFlowController : MonoBehaviour
 
         CurrentConsent = mode;
         SendConsent(mode);
+        ShowPage(Page.Description1);
 
-        ShowPage(Page.Recording);
+
+        IsDesc1AnimPlay = true;
+        DescriptRecordAnim();
+    }
+    private void DescriptRecordAnim()
+    {
+        voiceTween?.Kill();
+        recprogressTween?.Kill();
+        Desc1Voice.fillAmount = 0f;
+        Desc1Prog.fillAmount = 0f;
+        if (!IsDesc1AnimPlay)
+            return;
+        voiceTween = Desc1Voice
+                .DOFillAmount(1f, Desc1AnimDuration)
+                .SetEase(Ease.Linear)
+                .OnComplete(DescriptRecordAnim);
+        recprogressTween = Desc1Prog
+                .DOFillAmount(1f, Desc1AnimDuration)
+                .SetEase(Ease.Linear)
+                .OnComplete(DescriptRecordAnim);
+    }
+    public void ShowDescription2()
+    {
+        ShowPage(Page.Description2);
+
+
     }
     public void ShowExperience()
     {
