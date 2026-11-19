@@ -171,7 +171,7 @@ public class AppFlowController : MonoBehaviour
             buttons => M1Presentation.AddNarrativeButton(buttons, roundButton, copy.ToRecord, font, StartRecording));
 
         UpdateText(roundButton.GetComponentInChildren<TMP_Text>(true), copy.Start, font);
-        UpdateText(descriptionPanel2.transform.Find("NextButton")?.GetComponentInChildren<TMP_Text>(true), copy.Next, font);
+        UpdateText(descriptionPanel2.transform.Find("NextButton")?.GetComponentInChildren<TMP_Text>(true), copy.Start, font);
         var operation = descriptionPanel2.transform.Find("ExDescPanel")?.GetComponentInChildren<TMP_Text>(true);
         UpdateText(operation, copy.Operation, font);
         if (operation != null)
