@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 using DG.Tweening;
+using TMPro;
 public class RecordingController : MonoBehaviour
 {
     [Header("References")]
@@ -19,15 +20,27 @@ public class RecordingController : MonoBehaviour
     [SerializeField] private GameObject retryButton;
     [Header("Recording Settings")]
     [SerializeField, Min(0.1f)]
-    private float RecordingDuration = 5f;
+    private float RecordingDuration = 7f;
+
+    private const string DurationPrefKey = "M1.Recording.Duration";
+    public float RecordingDurationSeconds => RecordingDuration;
 
     public bool IsRecording { get; private set; }
     public bool IsRecordFinished { get; private set; }
 
     private Tween recordingTween;
 
+    internal void ApplyLanguage(M1Copy copy, TMP_FontAsset font)
+    {
+        AppFlowController.UpdateText(startText?.GetComponentInChildren<TMP_Text>(true), copy.Record, font);
+        AppFlowController.UpdateText(recText?.GetComponentInChildren<TMP_Text>(true), copy.Recording, font);
+        AppFlowController.UpdateText(finishedText?.GetComponentInChildren<TMP_Text>(true), copy.Next, font);
+        AppFlowController.UpdateText(retryButton?.GetComponentInChildren<TMP_Text>(true), copy.Retry, font);
+    }
+
     private void Awake()
     {
+        RecordingDuration = Mathf.Clamp(PlayerPrefs.GetFloat(DurationPrefKey, RecordingDuration), 3f, 60f);
         IsRecording = false;
         IsRecordFinished = false;
 
@@ -35,6 +48,17 @@ public class RecordingController : MonoBehaviour
             RecProgress.fillAmount = 0f;
 
         UpdateRecordingUI();
+    }
+
+    public bool TrySaveRecordingDuration(float seconds, out string error)
+    {
+        if (IsRecording) { error = "録音中は変更できません。"; return false; }
+        if (seconds < 3f || seconds > 60f) { error = "録音時間は3～60秒で指定してください。"; return false; }
+        RecordingDuration = seconds;
+        PlayerPrefs.SetFloat(DurationPrefKey, seconds);
+        PlayerPrefs.Save();
+        error = null;
+        return true;
     }
 
     public void ToggleRecording()
